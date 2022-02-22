@@ -11,11 +11,6 @@
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 	
-
-	<ItemGroup>
-	  <Content Remove="wwwroot\Images\1645073780_6484.png" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.2" />
@@ -35,8 +30,6 @@
 
   <ItemGroup>
 	  <Folder Include="wwwroot\EmailTemplate\" />
-	  <Folder Include="wwwroot\LossImages\" />
-	  <Folder Include="wwwroot\Documents\" />
   </ItemGroup>
 
 
