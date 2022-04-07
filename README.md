@@ -1,5 +1,5 @@
 # Introduction 
-Projeto Loss Control
+Projeto Template
 
 # Getting Started
 1.	Requisitos
