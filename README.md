@@ -3,7 +3,7 @@ Projeto Loss Control
 
 # Getting Started
 1.	Requisitos
-  - AspNet Core 5
+  - AspNet Core 6
   - MySql Server - (alterar a connectionString em appsettings.json)
   - Dotnet ef tools para executar as migrations ( dotnet tool install --global dotnet-ef )
 
