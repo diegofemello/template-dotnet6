@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Domain.VO
+namespace Application.DTO.Request
 {
-    public class UserEmailOptions
+    public class UserEmailOptionsDTO
     {
         public List<string> ToEmails { get; set; }
         public string Subject { get; set; }

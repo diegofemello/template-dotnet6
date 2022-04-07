@@ -1,14 +1,13 @@
 # Introduction 
-Repositório do projeto: 
-
+Projeto Loss Control
 
 # Getting Started
 1.	Requisitos
-  - AspNet Core 6
+  - AspNet Core 5
   - MySql Server - (alterar a connectionString em appsettings.json)
   - Dotnet ef tools para executar as migrations ( dotnet tool install --global dotnet-ef )
 
-2.	Installation process
+2.	Processo de Instalação
   - Para rodar as migrations é necessário a instalação das ferramentas do Entity Framework: 
   - dotnet tool install --global dotnet-ef
   Em seguida use:
@@ -20,5 +19,5 @@ Repositório do projeto:
 3.	Api references
   - Esse projeto utiliza o Swagger para gerar o documentação da Api.
     Para salvar a collection e executar via Postman, acesse: 
-      https://localhost:44303/swagger/v1/swagger.json
+      https://{URL_DE_EXECUÇÃO}/swagger/v1/swagger.json
 

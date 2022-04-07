@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
-using Domain.VO;
+using Application.DTO;
 using Domain.Model;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Repository.Generic;
 using System;
 using System.Threading.Tasks;
 using Application.Services.Interfaces;
-using Domain.VO.Request;
+using Application.DTO.Request;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Application.Services
 {
@@ -30,28 +31,25 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<UserVO> Create(UserCreateVO body)
+        public async Task<UserDTO> Create(UserCreateDTO body)
         {
             User user = _mapper.Map<User>(body);
 
-            user.Role = "Cliente";
             user.EmailToken = Guid.NewGuid().ToString()[..8];
-
-            user.Password = _userRepository.PasswordHash(user.Password);
-
+            user.Password = _authService.PasswordHash(user.Password);
             if (await _genericRepository.Add(user))
             {
                 User result = await _genericRepository
                     .FirstOrDefault<User>(u => u.Uid == user.Uid);
-                    
+
                 await _authService.GenerateEmailConfirmationTokenAsync(result);
 
-                return _mapper.Map<UserVO>(result);
+                return _mapper.Map<UserDTO>(result);
             }
             return null;
         }
 
-        public async Task<UserVO> Update(Guid id, UserUpdateVO body)
+        public async Task<UserDTO> Update(Guid id, UserUpdateDTO body)
         {
             User user = await _genericRepository
                 .FirstOrDefault<User>(u => u.Uid == id);
@@ -64,7 +62,7 @@ namespace Application.Services
             }
             else
             {
-                body.Password = _userRepository.PasswordHash(body.Password);
+                body.Password = _authService.PasswordHash(body.Password);
             }
 
             if (body.UserName != user.UserName)
@@ -95,21 +93,16 @@ namespace Application.Services
                 user.EmailToken = null;
             }
 
-            if(body.Role == null)
-            {
-                body.Role = user.Role;
-                user.UserRole.Name = user.Role;
-            }
+            if (body.UserRole == null) body.UserRole = user.UserRole;
 
             _mapper.Map(body, user);
 
-
             if (await _genericRepository.Update(user))
             {
-                User userRetorno = await _userRepository
+                User result = await _userRepository
                     .GetById(user.Uid);
 
-                return _mapper.Map<UserVO>(userRetorno);
+                return _mapper.Map<UserDTO>(result);
             }
             return null;
         }
@@ -123,11 +116,11 @@ namespace Application.Services
             if (user == null)
                 throw new Exception("Não existe usuário com o ID informado");
 
-            return await _userRepository.Delete(user);
+            return await _genericRepository.Delete(user);
         }
 
 
-        public async Task<UserVO> ConfirmEmailAsync(Guid uid, string token)
+        public async Task<UserDTO> ConfirmEmailAsync(Guid uid, string token)
         {
             User user = await _userRepository.GetById(uid);
             if (user.EmailToken == token)
@@ -140,8 +133,14 @@ namespace Application.Services
 
                 user.EmailConfirmed = true;
                 user.EmailToken = null;
-                User result = await _userRepository.RefreshUserInfo(user);
-                return _mapper.Map<UserVO>(result);
+                if (await _genericRepository.Update(user))
+                {
+                    return _mapper.Map<UserDTO>(user);
+                }
+                else
+                {
+                    throw new Exception("Ocorreu um erro ao resetar senha");
+                }
             }
             else
             {
@@ -149,77 +148,79 @@ namespace Application.Services
             }
         }
 
-
-        public async Task<UserVO> ResetPasswordAsync(ResetPasswordVO body)
+        public async Task<UserDTO> ResetPasswordAsync(ResetPasswordDTO body)
         {
             User user = await _userRepository.GetById(body.UserUid);
             if (user == null) throw new Exception("Usuário não encontrado");
 
-            if (user.EmailToken == body.Token)
-            {
-                string pass = _userRepository.PasswordHash(body.NewPassword);
+            if (user.EmailToken != body.Token)
+                throw new Exception("Token Inválido");
 
-                user.Password = pass;
-                user.EmailToken = null;
-                User result = await _userRepository.RefreshUserInfo(user);
-                return _mapper.Map<UserVO>(result);
+            string pass = _authService.PasswordHash(body.NewPassword);
+
+            user.Password = pass;
+            user.EmailToken = null;
+            user.EmailConfirmed = true;
+
+            if (await _genericRepository.Update(user))
+            {
+                return _mapper.Map<UserDTO>(user);
             }
             else
             {
-                throw new Exception("Token Inválido");
+                throw new Exception("Ocorreu um erro ao resetar senha");
             }
         }
 
 
-        public async Task<List<UserVO>> GetAll()
+        public async Task<List<UserDTO>> GetAll()
         {
             List<User> users = await _userRepository.GetAll();
 
             if (users == null) return null;
 
-            List<UserVO> resultado = _mapper.Map<List<UserVO>>(users);
+            List<UserDTO> result = _mapper.Map<List<UserDTO>>(users);
 
-            return resultado;
+            return result;
         }
 
 
-        public async Task<UserVO> GetById(Guid id)
+        public async Task<UserDTO> GetById(Guid id)
         {
             User user = await _userRepository.GetById(id);
             if (user == null) return null;
 
-            UserVO resultado = _mapper.Map<UserVO>(user);
+            UserDTO result = _mapper.Map<UserDTO>(user);
 
-            return resultado;
+            return result;
         }
 
 
-        public async Task<UserVO> GetByUserName(string userName)
+        public async Task<UserDTO> GetByUserName(string userName)
         {
             User user = await _genericRepository
                 .FirstOrDefault<User>(x => x.UserName == userName);
 
             if (user == null) return null;
 
-            UserVO resultado = _mapper.Map<UserVO>(user);
+            UserDTO resultado = _mapper.Map<UserDTO>(user);
 
             return resultado;
         }
 
-        public async Task<UserVO> GetByEmail(string email)
+        public async Task<UserDTO> GetByEmail(string email)
         {
             User user = await _genericRepository
-                .FirstOrDefault<User>(x => x.Email == email || x.ChangedEmail == email);
+                .FirstOrDefault<User>(x => x.Email == email);
 
             if (user == null) return null;
 
-            UserVO resultado = _mapper.Map<UserVO>(user);
+            UserDTO result = _mapper.Map<UserDTO>(user);
 
-            return resultado;
+            return result;
         }
 
-
-        public async Task<UserVO> CheckExist(UserVO body, Guid notThis)
+        public async Task<UserDTO> CheckExist(UserDTO body, Guid notThis)
         {
             User check = await _genericRepository.FirstOrDefault<User>(
                 u => (u.UserName == body.UserName ||
@@ -228,7 +229,7 @@ namespace Application.Services
                 u.Uid != notThis);
 
             if (check != null)
-                return _mapper.Map<UserVO>(check);
+                return _mapper.Map<UserDTO>(check);
 
             return null;
         }

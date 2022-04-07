@@ -1,6 +1,6 @@
-﻿namespace Domain.VO
+﻿namespace Application.DTO
 {
-    public class EmailConfirmVO
+    public class EmailConfirmDTO
     {
         public string Email { get; set; }
         public bool IsConfirmed { get; set; }

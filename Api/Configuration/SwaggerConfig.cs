@@ -13,17 +13,17 @@ namespace Api.Configuration
         {
             services.AddSwaggerGen(options =>
             {
-                string uri = "https://project.com";
+                string uri = "https://google.com";
 
                 options.SwaggerDoc("v1",
                     new OpenApiInfo
                     {
-                        Title = "Project API",
+                        Title = "Projeto API",
                         Version = "v1",
-                        Description = "Project API",
+                        Description = "Projeto API",
                         Contact = new OpenApiContact
                         {
-                            Name = "Project",
+                            Name = "Projeto",
                             Url = new Uri(uri)
                         }
                     });
@@ -51,7 +51,6 @@ namespace Api.Configuration
                     }
                 });
 
-                // using System.Reflection;
                 string xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
             });

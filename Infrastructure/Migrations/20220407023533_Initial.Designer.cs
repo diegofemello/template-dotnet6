@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ContextBase))]
-    [Migration("20220222161825_Initial")]
+    [Migration("20220407023533_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Domain.Model.Example", b =>
@@ -27,7 +27,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime");
 
                     b.Property<string>("Name")
@@ -35,7 +35,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime");
 
                     b.HasKey("Id");
@@ -46,16 +46,16 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(556),
+                            CreatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "example 1",
-                            UpdatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(556)
+                            UpdatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(557),
+                            CreatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "example 2",
-                            UpdatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(557)
+                            UpdatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -69,7 +69,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime");
 
                     b.Property<string>("Email")
@@ -89,7 +89,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(130)
                         .HasColumnType("varchar(130)");
 
-                    b.Property<DateTime>("LastAccess")
+                    b.Property<DateTime?>("LastAccess")
                         .HasColumnType("datetime");
 
                     b.Property<string>("Password")
@@ -104,12 +104,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime");
 
-                    b.Property<string>("Role")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(95)")
-                        .HasDefaultValue("Cliente");
-
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime");
 
                     b.Property<string>("UserName")
@@ -117,12 +112,15 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
+                    b.Property<int>("UserRole")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Uid");
 
                     b.HasIndex("Email")
                         .IsUnique();
-
-                    b.HasIndex("Role");
 
                     b.HasIndex("UserName")
                         .IsUnique();
@@ -133,83 +131,42 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Uid = new Guid("7e085fa2-3726-4f90-a72e-7062e99d4e27"),
-                            CreatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(534),
+                            CreatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@teste.com",
                             EmailConfirmed = true,
-                            FullName = "Admin da Silva",
-                            LastAccess = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(533),
+                            FullName = "Admin",
+                            LastAccess = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Password = "24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9",
-                            Role = "Admin",
-                            UpdatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(537),
-                            UserName = "Admin"
+                            UpdatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserName = "Admin",
+                            UserRole = 2
                         },
                         new
                         {
                             Uid = new Guid("34c619e1-efeb-4e39-be1b-73f58a3bc443"),
-                            CreatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(540),
+                            CreatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "cliente@teste.com",
                             EmailConfirmed = true,
                             FullName = "Cliente",
-                            LastAccess = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(540),
+                            LastAccess = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Password = "24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9",
-                            Role = "Cliente",
-                            UpdatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(541),
-                            UserName = "cliente"
+                            UpdatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserName = "Cliente",
+                            UserRole = 1
                         },
                         new
                         {
                             Uid = new Guid("14f091bc-cdb7-494a-bf4c-1f23da9244e5"),
-                            CreatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(542),
-                            Email = "tecnico@teste.com",
+                            CreatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "visitante@teste.com",
                             EmailConfirmed = true,
-                            FullName = "Tecnico",
-                            LastAccess = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(542),
+                            FullName = "Visitante",
+                            LastAccess = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Password = "24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9",
-                            Role = "Tecnico",
-                            UpdatedAt = new DateTime(2022, 2, 22, 16, 18, 25, 360, DateTimeKind.Utc).AddTicks(542),
-                            UserName = "tecnico"
+                            UpdatedAt = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserName = "Visitante",
+                            UserRole = 0
                         });
-                });
-
-            modelBuilder.Entity("Domain.Model.UserRole", b =>
-                {
-                    b.Property<string>("Name")
-                        .HasColumnType("varchar(95)");
-
-                    b.HasKey("Name");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("UserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Name = "Cliente"
-                        },
-                        new
-                        {
-                            Name = "Tecnico"
-                        },
-                        new
-                        {
-                            Name = "Admin"
-                        });
-                });
-
-            modelBuilder.Entity("Domain.Model.User", b =>
-                {
-                    b.HasOne("Domain.Model.UserRole", "UserRole")
-                        .WithMany("Users")
-                        .HasForeignKey("Role");
-
-                    b.Navigation("UserRole");
-                });
-
-            modelBuilder.Entity("Domain.Model.UserRole", b =>
-                {
-                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

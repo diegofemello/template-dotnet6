@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Domain.VO.Request
+namespace Application.DTO.Request
 {
-    public class EmailConfirmRequestVO
+    public class EmailConfirmRequestDTO
     {
         [Required(ErrorMessage = "O campo {0} é obrigatório.")]
         [DefaultValue("00000000-0000-0000-0000-000000000000"), Display(Name = "Id de usuário")]

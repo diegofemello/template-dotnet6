@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using Api.Configuration;
-using Domain.VO;
-using Domain.VO.Request;
+using Application.DTO;
+using Application.DTO.Request;
 using Application.Services.Generic;
 
 namespace API.Controllers
@@ -25,14 +25,14 @@ namespace API.Controllers
         /// <response code="204">Nenhum example encontrado.</response>
         /// <response code="401">Token está inválido ou expirado.</response>
         [Authorize, HttpGet("{id}")]
-        [ProducesResponseType((200), Type = typeof(ExampleVO))]
+        [ProducesResponseType((200), Type = typeof(ExampleDTO))]
         [ProducesResponseType(204)]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
         public async Task<IActionResult> GetByIdAsync([FromRoute]int id)
         {
             try
             {
-                ExampleVO result = await _genericService.GetById<ExampleVO>(id);
+                ExampleDTO result = await _genericService.GetById<ExampleDTO>(id);
 
                 if (result == null) return NoContent();
                 return Ok(result);
@@ -49,14 +49,14 @@ namespace API.Controllers
         /// <response code="204">Nenhum example encontrado.</response>
         /// <response code="401">Token está inválido ou expirado.</response>
         [Authorize, HttpGet]
-        [ProducesResponseType((200), Type = typeof(List<ExampleVO>))]
+        [ProducesResponseType((200), Type = typeof(List<ExampleDTO>))]
         [ProducesResponseType(204)]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
         public async Task<IActionResult> GetAllAsync()
         {
             try
             {
-                List<ExampleVO> result = await _genericService.GetAll<ExampleVO>();
+                List<ExampleDTO> result = await _genericService.GetAll<ExampleDTO>();
                 if (result == null) return NoContent();
 
                 return Ok(result);
@@ -69,20 +69,20 @@ namespace API.Controllers
         }
 
         /// <summary> Cadastra example. </summary>
-        /// <response code="201">Retorna o novo example cadastrado.</response>
+        /// <response code="201">Retorna o noDTO example cadastrado.</response>
         /// <response code="400">Objeto na requisição é nulo.</response>
         /// <response code="401">Token está inválido ou expirado.</response>
         [Authorize, HttpPost]
-        [ProducesResponseType((201), Type = typeof(ExampleVO))]
+        [ProducesResponseType((201), Type = typeof(ExampleDTO))]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> Create([FromBody]ExampleRequestVO body)
+        public async Task<IActionResult> Create([FromBody]ExampleRequestDTO body)
         {
             try
             {
                 if (body == null) return BadRequest("Requisição inválida");
 
-                ExampleVO result = await _genericService.Add(body);
+                ExampleDTO result = await _genericService.Add(body);
 
                 return StatusCode(StatusCodes.Status201Created, result);
             }
@@ -99,22 +99,22 @@ namespace API.Controllers
         /// <response code="401">Token está inválido ou expirado.</response>
         /// <response code="404">Não foi encontrado nenhum example com o id informado.</response>
         [Authorize, HttpPut("{id}")]
-        [ProducesResponseType((200), Type = typeof(ExampleRequestVO))]
+        [ProducesResponseType((200), Type = typeof(ExampleRequestDTO))]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((404), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> Update([FromRoute]int id, [FromBody] ExampleRequestVO body)
+        public async Task<IActionResult> Update([FromRoute]int id, [FromBody] ExampleRequestDTO body)
         {
             try
             {
                 if (body == null) return BadRequest("Requisição inválida");
 
-                ExampleVO check = await _genericService.GetById<ExampleVO>(id);
+                ExampleDTO check = await _genericService.GetById<ExampleDTO>(id);
 
                 if (check == null)
                     return NotFound();
 
-                ExampleVO result = await _genericService.Update(id, body);
+                ExampleDTO result = await _genericService.Update(id, body);
                 if (result == null)
                     throw new Exception("Ocorreu um erro.");
 
@@ -139,10 +139,10 @@ namespace API.Controllers
         {
             try
             {
-                ExampleVO result = await _genericService.GetById<ExampleVO>(id);
+                ExampleDTO result = await _genericService.GetById<ExampleDTO>(id);
                 if (result == null) return NotFound();
 
-                return await _genericService.Delete<ExampleVO>(id) ?
+                return await _genericService.Delete<ExampleDTO>(id) ?
                     NoContent() : throw new Exception("Ocorreu um erro.");
             }
             catch (Exception ex)

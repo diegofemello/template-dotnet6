@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Api.Configuration;
 using Application.Services.Interfaces;
-using Domain.VO;
-using Domain.VO.Request;
+using Application.DTO;
+using Application.DTO.Request;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Application.Utils;
+using Application.Services.Generic;
 
 namespace Api.Controllers
 {
@@ -27,7 +27,7 @@ namespace Api.Controllers
         /// <response code="401">Token está inválido ou expirado.</response>
         /// <response code="403">O usuário não tem permissão para acessar este endpoint.</response>
         [Authorize, HttpGet("{id}")]
-        [ProducesResponseType((200), Type = typeof(UserVO))]
+        [ProducesResponseType((200), Type = typeof(UserDTO))]
         [ProducesResponseType(204)]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((403), Type = typeof(ResponseEnvelope<>))]
@@ -35,10 +35,10 @@ namespace Api.Controllers
         {
             try
             {
-                UserVO user = await _userService.GetById(id);
+                UserDTO user = await _userService.GetById(id);
                 if (user == null) return NoContent();
 
-                if (User.IsInRole("Cliente") && user.UserName != User.Identity.Name)
+                if (User.IsInRole("Cliente") && user.Email != User.Identity.Name)
                     return StatusCode(StatusCodes.Status403Forbidden,
                         "Você não tem permissão para acessar os dados deste usuário!");
 
@@ -55,14 +55,14 @@ namespace Api.Controllers
         /// <response code="204">Nenhum usuário encontrado.</response>
         /// <response code="401">Token está inválido ou expirado.</response>
         [Authorize(Roles = "Admin"), HttpGet]
-        [ProducesResponseType((200), Type = typeof(List<UserVO>))]
+        [ProducesResponseType((200), Type = typeof(List<UserDTO>))]
         [ProducesResponseType(204)]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
         public async Task<IActionResult> GetAllUsersAsync()
         {
             try
             {
-                List<UserVO> users = await _userService.GetAll();
+                List<UserDTO> users = await _userService.GetAll();
                 if (users == null) return NoContent();
 
                 return Ok(users);
@@ -79,14 +79,14 @@ namespace Api.Controllers
         /// <response code="401">Token está inválido ou expirado.</response>
         /// <response code="403">O usuário não tem permissão para acessar este endpoint.</response>
         [Authorize(Roles = "Admin"), HttpGet("Username/{userName}")]
-        [ProducesResponseType((200), Type = typeof(UserVO))]
+        [ProducesResponseType((200), Type = typeof(UserDTO))]
         [ProducesResponseType(204)]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
         public async Task<IActionResult> GetUserByUserNameAsync(string userName)
         {
             try
             {
-                UserVO user = await _userService.GetByUserName(userName);
+                UserDTO user = await _userService.GetByUserName(userName);
                 if (user == null) return NoContent();
                 return Ok(user);
             }
@@ -101,22 +101,22 @@ namespace Api.Controllers
         /// <response code="400">Objeto na requisição é nulo ou quando é informado email/senha de outro usuário.</response>
         /// <response code="401">Token está inválido ou expirado.</response>
         [AllowAnonymous, HttpPost]
-        [ProducesResponseType((201), Type = typeof(UserVO))]
+        [ProducesResponseType((201), Type = typeof(UserDTO))]
         [ProducesResponseType(204)]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> Create(UserCreateVO model)
+        public async Task<IActionResult> Create(UserCreateDTO model)
         {
             try
             {
                 if (model == null) return BadRequest("Requisição inválida");
 
-                UserVO userCheck = new()
+                UserDTO userCheck = new()
                 {
                     Email = model.Email,
                     UserName = model.UserName,
                 };
 
-                UserVO checkResult = await _userService.CheckExist(userCheck, Guid.Empty);
+                UserDTO checkResult = await _userService.CheckExist(userCheck, Guid.Empty);
 
                 if (checkResult != null)
                 {
@@ -127,7 +127,7 @@ namespace Api.Controllers
                         return BadRequest($"O UserName informado já está cadastrado.");
                 }
 
-                UserVO user = await _userService.Create(model);
+                UserDTO user = await _userService.Create(model);
 
                 return StatusCode(StatusCodes.Status201Created, user);
             }
@@ -144,43 +144,43 @@ namespace Api.Controllers
         /// <response code="403">O usuário não tem acesso ao dado do usuário informado ou tenta alterar a role sem ter permissão.</response>
         /// <response code="404">Não foi encontrado nenhum usuário com o id informado.</response>
         [Authorize, HttpPut("{id}")]
-        [ProducesResponseType((200), Type = typeof(UserVO))]
+        [ProducesResponseType((200), Type = typeof(UserDTO))]
         [ProducesResponseType(204)]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((403), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((404), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> Update(Guid id, UserUpdateVO model)
+        public async Task<IActionResult> Update(Guid id, UserUpdateDTO model)
         {
             try
             {
                 if (model == null)
                     return BadRequest("Requisição inválida.");
 
-                UserVO user = await _userService.GetById(id);
-                if (user == null) return NotFound(); 
+                UserDTO user = await _userService.GetById(id);
+                if (user == null) return NotFound();
 
-                if (!User.IsInRole("Admin") && user.UserName != User.Identity.Name)
+                if (!User.IsInRole("Admin") && user.Email != User.Identity.Name)
                     return StatusCode(StatusCodes.Status403Forbidden,
                         "Você não tem permissão para acessar os dados deste usuário!");
 
-                if (model.Role != null && model.Role != user.Role)
+                if (model.UserRole.ToString() != user.UserRole)
                 {
                     if (!User.IsInRole("Admin"))
                         return StatusCode(StatusCodes.Status403Forbidden,
-                            "Você não tem permissão para alterar a role deste usuário.");
+                            "Você não tem permissão para alterar a permissão deste usuário.");
 
-                    if (!Enum.IsDefined(typeof(UserRoles), model.Role))
+                    if (!Enum.IsDefined(typeof(Domain.Model.UserRole), model.UserRole))
                         return BadRequest("Role inválida.");
                 }
 
-                UserVO userCheck = new()
+                UserDTO userCheck = new()
                 {
                     Email = model.Email,
                     UserName = model.UserName,
                 };
 
-                UserVO checkResult = await _userService.CheckExist(userCheck, id);
+                UserDTO checkResult = await _userService.CheckExist(userCheck, id);
 
                 if (checkResult != null)
                 {
@@ -191,7 +191,7 @@ namespace Api.Controllers
                         return BadRequest($"O Login informado já está cadastrado.");
                 }
 
-                UserVO userReturn = await _userService.Update(id, model);
+                UserDTO userReturn = await _userService.Update(id, model);
                 return Ok(userReturn);
             }
             catch (Exception ex)
@@ -213,7 +213,7 @@ namespace Api.Controllers
         {
             try
             {
-                UserVO user = await _userService.GetById(id);
+                UserDTO user = await _userService.GetById(id);
                 if (user == null) return NotFound();
 
                 return await _userService.Delete(id) ?

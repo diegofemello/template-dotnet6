@@ -15,9 +15,6 @@ namespace Infrastructure.Context
         public ContextBase(DbContextOptions<ContextBase> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
-
-        public DbSet<UserRole> UserRoles { get; set; }
-
         public DbSet<Example> Examples { get; set; }
 
         public override int SaveChanges()
@@ -26,12 +23,10 @@ namespace Infrastructure.Context
             return base.SaveChanges();
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             AddTimestamps();
-
-            //return base.SaveChangesAsync();
-            return base.SaveChangesAsync(cancellationToken);
+            return await base.SaveChangesAsync(cancellationToken);
         }
 
         private void AddTimestamps()
@@ -67,75 +62,59 @@ namespace Infrastructure.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            var newDate = DateTime.Parse("Jan 1, 2022");
+
             modelBuilder.Entity<User>()
-                .HasIndex(u => u.UserName)
-                .IsUnique(true);
+               .HasIndex(u => u.UserName)
+               .IsUnique(true);
+
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique(true);
 
             modelBuilder.Entity<User>()
-                .Property(u => u.Role)
-                .HasDefaultValue("Cliente");
-
-            modelBuilder.Entity<UserRole>()
-                .HasIndex(u => u.Name)
-                .IsUnique(true);
-
-            UserRole userRole1 = new()
-            {
-                Name = "Cliente",
-            };
-            UserRole userRole2 = new()
-            {
-                Name = "Tecnico",
-            };
-            UserRole userRole3 = new()
-            {
-                Name = "Admin",
-            };
-            modelBuilder.Entity<UserRole>()
-                .HasData(userRole1, userRole2, userRole3);
+                .Property(u => u.UserRole)
+                .HasDefaultValue(UserRole.Visitor);
 
 
             User user1 = new()
             {
                 Uid = new Guid("7e085fa2-3726-4f90-a72e-7062e99d4e27"),
-                UserName = "Admin",
                 Password = "24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9",
-                FullName = "Admin da Silva",
+                FullName = "Admin",
+                UserName = "Admin",
                 Email = "admin@teste.com",
-                Role = userRole3.Name,
+                UserRole = UserRole.Admin,
                 EmailConfirmed = true,
-                LastAccess = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                LastAccess = newDate,
+                CreatedAt = newDate,
+                UpdatedAt = newDate,
             };
             User user2 = new()
             {
                 Uid = new Guid("34c619e1-efeb-4e39-be1b-73f58a3bc443"),
-                UserName = "cliente",
                 Password = "24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9",
                 FullName = "Cliente",
+                UserName = "Cliente",
                 Email = "cliente@teste.com",
-                Role = userRole1.Name,
+                UserRole = UserRole.Default,
                 EmailConfirmed = true,
-                LastAccess = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                LastAccess = newDate,
+                CreatedAt = newDate,
+                UpdatedAt = newDate,
             };
             User user3 = new()
             {
                 Uid = new Guid("14f091bc-cdb7-494a-bf4c-1f23da9244e5"),
-                UserName = "tecnico",
                 Password = "24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9",
-                FullName = "Tecnico",
-                Email = "tecnico@teste.com",
-                Role = userRole2.Name,
+                FullName = "Visitante",
+                UserName = "Visitante",
+                Email = "visitante@teste.com",
+                UserRole = UserRole.Visitor,
                 EmailConfirmed = true,
-                LastAccess = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                LastAccess = newDate,
+                CreatedAt = newDate,
+                UpdatedAt = newDate,
             };
             modelBuilder.Entity<User>()
                 .HasData(user1, user2, user3);
@@ -144,15 +123,15 @@ namespace Infrastructure.Context
             {
                 Id = 1,
                 Name = "example 1",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = newDate,
+                UpdatedAt = newDate,
             };
             Example example2 = new()
             {
                 Id = 2,
                 Name = "example 2",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = newDate,
+                UpdatedAt = newDate,
             };
             modelBuilder.Entity<Example>()
                 .HasData(example1, example2);

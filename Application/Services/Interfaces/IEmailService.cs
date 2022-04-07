@@ -1,12 +1,12 @@
-﻿using Domain.VO;
+﻿using Application.DTO.Request;
 using System.Threading.Tasks;
 
 namespace Application.Services.Interfaces
 {
     public interface IEmailService
     {
-        Task SendEmailForEmailConfirmation(UserEmailOptions userEmailOptions, string path, bool updated = false);
+        Task SendEmailForEmailConfirmation(UserEmailOptionsDTO userEmailOptions, string path, bool updated = false);
 
-        Task SendEmailForForgotPassword(UserEmailOptions userEmailOptions, string path);
+        Task SendEmailForForgotPassword(UserEmailOptionsDTO userEmailOptions, string path);
     }
 }

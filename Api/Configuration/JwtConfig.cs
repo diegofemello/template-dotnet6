@@ -9,7 +9,6 @@ using System.Text;
 using Application.Utils.Configurations;
 using Application.Services.Interfaces;
 using Application.Services;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 
 namespace Api.Configuration
@@ -37,6 +36,8 @@ namespace Api.Configuration
             })
             .AddJwtBearer(options =>
             {
+                options.SaveToken = true;
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -68,7 +69,17 @@ namespace Api.Configuration
 
                         context.Response.StatusCode = response.Status;
                         await context.Response.WriteAsJsonAsync(response);
+                    },
+                    OnAuthenticationFailed = async context =>
+                    {
+                        ResponseEnvelope<object> response =
+                            new(401, "Não autenticado!", "Token expirado.");
+
+                        context.Response.StatusCode = response.Status;
+
+                        await context.Response.WriteAsJsonAsync(response);
                     }
+
                 };
             });
 

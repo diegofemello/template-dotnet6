@@ -1,5 +1,5 @@
-﻿using Domain.VO;
-using Domain.VO.Request;
+﻿using Application.DTO;
+using Application.DTO.Request;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,24 +8,24 @@ namespace Application.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserVO> Create(UserCreateVO model);
+        Task<UserDTO> Create(UserCreateDTO model);
 
-        Task<UserVO> Update(Guid id, UserUpdateVO model);
+        Task<UserDTO> Update(Guid id, UserUpdateDTO model);
 
         Task<bool> Delete(Guid id);
 
-        Task<UserVO> ConfirmEmailAsync(Guid id, string token);
+        Task<UserDTO> ConfirmEmailAsync(Guid id, string token);
 
-        Task<UserVO> ResetPasswordAsync(ResetPasswordVO model);
+        Task<UserDTO> ResetPasswordAsync(ResetPasswordDTO model);
 
-        Task<List<UserVO>> GetAll();
+        Task<List<UserDTO>> GetAll();
 
-        Task<UserVO> GetById(Guid id);
+        Task<UserDTO> GetById(Guid id);
 
-        Task<UserVO> GetByUserName(string userName);
+        Task<UserDTO> GetByUserName(string userName);
 
-        Task<UserVO> GetByEmail(string userName);
+        Task<UserDTO> GetByEmail(string email);
 
-        Task<UserVO> CheckExist(UserVO model, Guid notThis);
+        Task<UserDTO> CheckExist(UserDTO model, Guid notThis);
     }
 }

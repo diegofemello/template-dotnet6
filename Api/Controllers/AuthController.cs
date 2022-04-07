@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Api.Configuration;
 using Application.Services.Interfaces;
-using Domain.VO;
-using Domain.VO.Request;
+using Application.DTO;
+using Application.DTO.Request;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Api.Controllers
 {
@@ -26,15 +27,15 @@ namespace Api.Controllers
         /// <response code="400">Email não está valido ou requisição está vazia.</response>
         /// <response code="401">Token está inválido ou expirado.</response>
         [AllowAnonymous, HttpPost("Signin")]
-        [ProducesResponseType((200), Type = typeof(TokenVO))]
+        [ProducesResponseType((200), Type = typeof(TokenDTO))]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> Signin([FromBody] AuthVO body)
+        public async Task<IActionResult> Signin([FromBody] AuthRequestDTO body)
         {
             try
             {
                 if (body == null) return BadRequest("Requisição inválida");
-                TokenVO token = await _authService.ValidateCredentials(body);
+                TokenDTO token = await _authService.ValidateCredentials(body);
 
                 if (token == null) return Unauthorized();
 
@@ -55,16 +56,20 @@ namespace Api.Controllers
         /// <response code="200">Retorna usuário atualizado.</response>
         /// <response code="400">Objeto na requisição é nulo.</response>
         /// <response code="401">Token está inválido ou expirado.</response>
-        [Authorize, HttpPost("Refresh")]
-        [ProducesResponseType((200), Type = typeof(TokenVO))]
+        [AllowAnonymous, HttpPost("Refresh")]
+        [ProducesResponseType((200), Type = typeof(TokenDTO))]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> Refresh([FromBody] TokenVO body)
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDTO body)
         {
             try
             {
                 if (body is null) return BadRequest("Requisição inválida");
-                TokenVO token = await _authService.ValidateCredentials(body);
+
+                var accessToken = HttpContext.GetTokenAsync("access_token")?.Result;
+                if (accessToken is null) return Unauthorized();
+                
+                TokenDTO token = await _authService.ValidateCredentials(accessToken, body.RefreshToken);
 
                 return token == null ? Unauthorized("Token Invalido ou expirado") : Ok(token);
             }
@@ -96,19 +101,25 @@ namespace Api.Controllers
         [ProducesResponseType((200), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((404), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> ConfirmEmail([FromBody] EmailConfirmVO body)
+        public async Task<IActionResult> GenerateEmailConfirm([FromBody] EmailRequestDTO body)
         {
             try
             {
                 if (body == null) return BadRequest("Requisição inválida");
 
-                UserVO user = await _userService.GetByEmail(body.Email);
+                UserDTO user = await _userService.GetByEmail(body.Email);
                 if (user == null) return NotFound();
 
                 if (user.EmailConfirmed && body.Email == user.Email)
                 {
-                    body.IsConfirmed = true;
-                    return Ok(body);
+                    EmailConfirmDTO emailConfirm = new()
+                    {
+                        Email = body.Email,
+                        EmailSent = false,
+                        IsConfirmed = true
+                    };
+
+                    return Ok(emailConfirm);
                 }
                 await _authService.GenerateEmailConfirmationByUser(user);
 
@@ -124,9 +135,9 @@ namespace Api.Controllers
         /// <response code="200">Retorna se o email foi confirmado.</response>
         /// <response code="400">Objeto na requisição é nulo ou o token informado é inválido.</response>
         [AllowAnonymous, HttpPost("ConfirmEmail")]
-        [ProducesResponseType((200), Type = typeof(EmailConfirmVO))]
+        [ProducesResponseType((200), Type = typeof(EmailConfirmDTO))]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> ConfirmEmail([FromBody] EmailConfirmRequestVO body)
+        public async Task<IActionResult> ConfirmEmail([FromBody] EmailConfirmRequestDTO body)
         {
             try
             {
@@ -134,24 +145,20 @@ namespace Api.Controllers
 
                 if (!string.IsNullOrEmpty(body.Token))
                 {
-                    UserVO checkConfirm = await _userService
+                    UserDTO checkConfirm = await _userService
                         .ConfirmEmailAsync(body.UserUid, body.Token);
 
                     if (checkConfirm != null)
                     {
-                        EmailConfirmVO result = new()
+                        EmailConfirmDTO result = new()
                         {
                             Email = checkConfirm.Email,
                             IsConfirmed = true
                         };
                         return Ok(result);
                     }
-                    else {
-                        EmailConfirmVO result = new()
-                        {
-                            Email = checkConfirm.Email,
-                            IsConfirmed = false
-                        };
+                    else
+                    {
                         return BadRequest("Token inválido.");
                     }
                 }
@@ -163,23 +170,20 @@ namespace Api.Controllers
                     $"Erro ao tentar confirmar email. {ex.Message}");
             }
         }
-
         /// <response code="200">Enviado email de recuperação de senha.</response>
         /// <response code="404">Não foi encontrado nenhum usuário com o email informado.</response>
         [AllowAnonymous, HttpPost("GenerateEmailForgotPassword")]
         [ProducesResponseType((200), Type = typeof(ResponseEnvelope<>))]
         [ProducesResponseType((404), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> ForgotPassword([FromBody]ForgotPasswordRequestVO body)
+        public async Task<IActionResult> GenerateEmailForgot([FromBody]EmailRequestDTO body)
         {
             try
             {
-                UserVO user = await _userService.GetByEmail(body.Email);
+                UserDTO user = await _userService.GetByEmail(body.Email);
                 if (user == null) return NotFound();
 
                 await _authService.GenerateForgotPasswordTokenAsync(user);
 
-                ModelState.Clear();
-                body.EmailSent = true;
 
                 return Ok("Email de recuperação de senha enviado com sucesso!");
 
@@ -189,20 +193,19 @@ namespace Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     $"Erro ao tentar enviar email de recuperação. {ex.Message}");
             }
-
         }
 
         /// <response code="200">Retorna usuário com senha atualizada atualizado.</response>
         /// <response code="400">Objeto na requisição é nulo.</response>
         [AllowAnonymous, HttpPost("ResetPassword")]
-        [ProducesResponseType((200), Type = typeof(UserVO))]
+        [ProducesResponseType((200), Type = typeof(UserDTO))]
         [ProducesResponseType((400), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> ResetPassword([FromBody]ResetPasswordVO body)
+        public async Task<IActionResult> ResetPassword([FromBody]ResetPasswordDTO body)
         {
             try
             {
                 if (body == null) return BadRequest("Requisição inválida");
-                UserVO result = await _userService.ResetPasswordAsync(body);
+                UserDTO result = await _userService.ResetPasswordAsync(body);
 
                 return Ok(result);
             }

@@ -1,12 +1,10 @@
-﻿using Domain.Model.Base;
-using System.Collections.Generic;
+﻿ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Infrastructure.Repository.Generic;
 using System;
 using AutoMapper;
 using Application.Utils;
-using Domain.Model;
-using System.Linq.Expressions;
+using Application.DTO.Base;
 
 namespace Application.Services.Generic
 {
@@ -25,6 +23,14 @@ namespace Application.Services.Generic
         {
             dynamic castedModel = GetCastedModel<T>();
             dynamic result = await _genericRepository.GetById(id, castedModel);
+
+            return _mapper.Map<T>(result);
+        }
+
+        public async Task<T> GetByName<T>(string name) where T : BaseDTO
+        {
+            dynamic castedModel = GetCastedModel<T>();
+            dynamic result = await _genericRepository.FirstOrDefault<T>(f => f.Name == name);
 
             return _mapper.Map<T>(result);
         }
@@ -79,19 +85,26 @@ namespace Application.Services.Generic
             return await _genericRepository.Delete(model);
         }
 
+        public async Task<bool> Exists<T>(int id) where T : BaseDTO
+        {
+            dynamic castedModel = GetCastedModel<T>();
+            return await _genericRepository.Any<T>(t => t.Id == id);
+        }
+
         public async Task<int> CountAll<T>() where T : class
         {
             dynamic castedModel = GetCastedModel<T>();
             return await _genericRepository.CountAll(castedModel);
         }
 
-        private static dynamic GetCastedModel<T>(bool toVO = false) where T : class
+        private static dynamic GetCastedModel<T>(bool toDTO = false) where T : class
         {
-            Type type = toVO ?
-                Mapping.toVO[typeof(T)] : Mapping.toModel[typeof(T)];
+            Type type = toDTO ?
+                Mapping.toDTO[typeof(T)] : Mapping.toModel[typeof(T)];
 
             return Activator.CreateInstance(type);
         }
 
+        
     }
 }

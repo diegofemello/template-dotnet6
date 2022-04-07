@@ -1,15 +1,13 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Domain.VO.Request
+namespace Application.DTO.Request
 {
-    public class ForgotPasswordRequestVO
+    public class EmailRequestDTO
     {
         [DefaultValue("email@email.com"), Display(Name = "E-Mail")]
         [Required(ErrorMessage = "O campo {0} é obrigatório.")]
         [EmailAddress(ErrorMessage = "Não foi informado um {0} válido.")]
         public string Email { get; set; }
-
-        public bool EmailSent { get; set; }
     }
 }

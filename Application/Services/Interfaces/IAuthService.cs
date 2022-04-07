@@ -1,22 +1,24 @@
 ﻿using Domain.Model;
-using Domain.VO;
-using Domain.VO.Request;
+using Application.DTO;
+using Application.DTO.Request;
 using System.Threading.Tasks;
 
 namespace Application.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<TokenVO> ValidateCredentials(AuthVO userCredentials);
+        Task<TokenDTO> ValidateCredentials(AuthRequestDTO userCredentials);
 
-        Task<TokenVO> ValidateCredentials(TokenVO token);
+        Task<TokenDTO> ValidateCredentials(string accessToken, string refreshToken);
 
-        Task<bool> RevokeToken(string userName);
+        Task<bool> RevokeToken(string email);
 
-        Task GenerateForgotPasswordTokenAsync(UserVO user);
+        Task GenerateForgotPasswordTokenAsync(UserDTO user);
 
         Task GenerateEmailConfirmationTokenAsync(User user);
 
-        Task GenerateEmailConfirmationByUser(UserVO user);
+        Task GenerateEmailConfirmationByUser(UserDTO user);
+
+        string PasswordHash(string input);
     }
 }

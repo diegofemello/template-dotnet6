@@ -1,6 +1,5 @@
-﻿using AutoMapper;
-using Domain.VO;
-using Domain.VO.Request;
+﻿using Application.DTO;
+using Application.DTO.Request;
 using Domain.Model;
 using System;
 using System.Collections.Generic;
@@ -11,16 +10,11 @@ namespace Application.Utils
     {
         public Profile()
         {
-            CreateMap<User, UserVO>().ReverseMap();
-            CreateMap<UserVO, UserCreateVO>().ReverseMap();
-            CreateMap<UserVO, UserUpdateVO>().ReverseMap();
-            CreateMap<User, UserCreateVO>().ReverseMap();
-            CreateMap<User, UserUpdateVO>().ReverseMap();
-
-            CreateMap<UserRole, UserRoleVO>().ReverseMap();
-
-            CreateMap<Example, ExampleVO>().ReverseMap();
-            CreateMap<ExampleRequestVO, Example>().ReverseMap();
+            CreateMap<User, UserDTO>().ReverseMap();
+            CreateMap<UserDTO, UserCreateDTO>().ReverseMap();
+            CreateMap<UserDTO, UserUpdateDTO>().ReverseMap();
+            CreateMap<User, UserCreateDTO>().ReverseMap();
+            CreateMap<User, UserUpdateDTO>().ReverseMap();
         }
     }
 
@@ -28,15 +22,22 @@ namespace Application.Utils
     {
         public readonly static Dictionary<Type, Type> toModel = new()
         {
-            { typeof(ExampleVO), typeof(Example) },
-            { typeof(ExampleRequestVO), typeof(Example) },
+            { typeof(ExampleDTO), typeof(Example) },
+            { typeof(ExampleRequestDTO), typeof(Example) },
+
+            { typeof(UserDTO), typeof(User) },
+            { typeof(UserCreateDTO), typeof(User) },
+            { typeof(UserUpdateDTO), typeof(User) },
         };
 
-        public readonly static Dictionary<Type, Type> toVO = new()
+        public readonly static Dictionary<Type, Type> toDTO = new()
         {
-            { typeof(Example), typeof(ExampleVO) },
-            { typeof(ExampleRequestVO), typeof(ExampleVO) },
+            { typeof(Example), typeof(ExampleDTO) },
+            { typeof(ExampleRequestDTO), typeof(ExampleDTO) },
 
+            { typeof(User), typeof(UserDTO) },
+            { typeof(UserCreateDTO), typeof(UserDTO) },
+            { typeof(UserUpdateDTO), typeof(UserDTO) },
         };
     }
 }

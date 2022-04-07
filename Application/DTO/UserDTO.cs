@@ -1,17 +1,15 @@
 ﻿using Domain.Model;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
-namespace Domain.VO
+namespace Application.DTO
 {
-    public class UserVO
+    public class UserDTO
     {
         public Guid Uid { get; set; }
 
-        public string UserName { get; set; }
-
         public string FullName { get; set; }
+
+        public string UserName { get; set; }
 
         public string Email { get; set; }
 
@@ -19,7 +17,7 @@ namespace Domain.VO
 
         public DateTime LastAccess { get; set; }
 
-        public string Role { get; set; }
+        public string UserRole { get; set; }
 
         public string RefreshToken { get; set; }
 
@@ -28,6 +26,5 @@ namespace Domain.VO
         public DateTime? CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
-
     }
 }

@@ -47,7 +47,6 @@ namespace Api.Configuration
         {
             return new ResponseEnvelope<T>(status, message, data, details);
         }
-
         public static ResponseEnvelope<object> Result(
             int status, string message, string details = null)
         {
@@ -63,8 +62,7 @@ namespace Api.Configuration
             ILoggerFactory loggerFactory,
             IOptions<MvcOptions> mvcOptions) : base(
                 formatterSelector, writerFactory, loggerFactory, mvcOptions)
-        {
-        }
+        { }
 
         public override Task ExecuteAsync(ActionContext context, ObjectResult result)
         {
@@ -74,9 +72,8 @@ namespace Api.Configuration
             int resultStatus = (int)result.StatusCode;
             Type type = result.Value.GetType();
 
-            if (type != typeof(ResponseEnvelope<>)) { }
-            else
-                if (resultStatus >= 400)
+            if (type == typeof(ResponseEnvelope<>)) { }
+            else if (resultStatus >= 400)
             {
                 ResponseEnvelope<object> response = new();
                 response.Status = resultStatus;
@@ -86,11 +83,15 @@ namespace Api.Configuration
                     string[] splitedResponse =
                         result.Value.ToString().Split('.');
 
+                    string responseText = "";
+
                     response.Message = splitedResponse[0] + ".";
                     for (int i = 1; i < splitedResponse.Length; i++)
                     {
-                        response.Details += splitedResponse[i] + ".";
+                        responseText += splitedResponse[i] + ".";
                     }
+
+                    response.Details = responseText.Replace("..", ".");
                 }
                 else if (resultStatus == 401 && type != typeof(string))
                 {
@@ -116,13 +117,11 @@ namespace Api.Configuration
                 }
 
                 result.Value = response;
-            }
-            else if (type == typeof(string))
+            }else if (type == typeof(string) )
             {
                 ResponseEnvelope<object> response = new();
                 response.Message = (string)result.Value;
                 response.Status = resultStatus;
-
                 result.Value = response;
             }
 

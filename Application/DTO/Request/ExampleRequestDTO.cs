@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Domain.VO.Request
+namespace Application.DTO.Request
 {
-    public class ExampleRequestVO
+    public class ExampleRequestDTO
     {
         [DefaultValue("Nome"), Display(Name = "Nome")]
         [Required(ErrorMessage = "O campo {0} é obrigatório.")]

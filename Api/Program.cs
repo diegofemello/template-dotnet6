@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Rewrite;
 using Newtonsoft.Json;
 using System;
@@ -17,7 +15,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
     services.AddScoped<IActionResultExecutor<ObjectResult>, ResponseEnvelopeResultExecutor>();
 
-    services.AddDatabaseConfig(builder.Configuration, builder.Environment);
+    services.AddDatabaseConfig(builder.Configuration);
 
     services.AddJwtTConfig(builder.Configuration);
 
@@ -39,11 +37,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         (builder.Configuration.GetSection("SMTPConfig"));
 }
 
-
-
 WebApplication app = builder.Build();
 {
-
     app.UseCors(x => x
         .SetIsOriginAllowed(origin => true)
         .AllowAnyMethod()
