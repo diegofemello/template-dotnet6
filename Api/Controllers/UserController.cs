@@ -8,7 +8,7 @@ using Application.DTO.Request;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Application.Services.Generic;
+using Infrastructure.Helpers;
 
 namespace Api.Controllers
 {
@@ -58,11 +58,11 @@ namespace Api.Controllers
         [ProducesResponseType((200), Type = typeof(List<UserDTO>))]
         [ProducesResponseType(204)]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> GetAllUsersAsync()
+        public async Task<IActionResult> GetAllUsersAsync([FromQuery]PageParams pageParams)
         {
             try
             {
-                List<UserDTO> users = await _userService.GetAll();
+                List<UserDTO> users = await _userService.GetAll(pageParams);
                 if (users == null) return NoContent();
 
                 return Ok(users);

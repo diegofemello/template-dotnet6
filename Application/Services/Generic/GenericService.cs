@@ -5,6 +5,7 @@ using System;
 using AutoMapper;
 using Application.Utils;
 using Application.DTO.Base;
+using Infrastructure.Helpers;
 
 namespace Application.Services.Generic
 {
@@ -41,6 +42,19 @@ namespace Application.Services.Generic
 
             dynamic result = await _genericRepository.GetAll(castedModel);
             return _mapper.Map<List<T>>(result);
+        }
+
+        public async Task<PageList<T>> GetAll<T>(PageParams pageParams = null) where T : BaseDTO
+        {
+            if(pageParams == null) pageParams = new ();
+
+            dynamic castedModel = GetCastedModel<T>();
+
+            dynamic all = await _genericRepository.GetAllPaginated(pageParams, castedModel);
+
+            PageList<T> result = _mapper.Map<PageList<T>>(all);
+            
+            return Pagination.Map(all, result);
         }
 
         public async Task<dynamic> Add<T>(T entity) where T : class

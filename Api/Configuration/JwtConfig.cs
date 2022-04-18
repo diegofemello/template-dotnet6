@@ -69,15 +69,6 @@ namespace Api.Configuration
 
                         context.Response.StatusCode = response.Status;
                         await context.Response.WriteAsJsonAsync(response);
-                    },
-                    OnAuthenticationFailed = async context =>
-                    {
-                        ResponseEnvelope<object> response =
-                            new(401, "Não autenticado!", "Token expirado.");
-
-                        context.Response.StatusCode = response.Status;
-
-                        await context.Response.WriteAsJsonAsync(response);
                     }
 
                 };

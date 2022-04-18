@@ -7,8 +7,8 @@ using System;
 using System.Threading.Tasks;
 using Application.Services.Interfaces;
 using Application.DTO.Request;
-using System.Collections.Generic;
-using System.Linq;
+using Infrastructure.Helpers;
+using Application.Utils;
 
 namespace Application.Services
 {
@@ -173,15 +173,15 @@ namespace Application.Services
         }
 
 
-        public async Task<List<UserDTO>> GetAll()
+        public async Task<PageList<UserDTO>> GetAll(PageParams pageParams)
         {
-            List<User> users = await _userRepository.GetAll();
+            PageList<User> users = await _userRepository.GetAll(pageParams);
 
             if (users == null) return null;
 
-            List<UserDTO> result = _mapper.Map<List<UserDTO>>(users);
+            PageList<UserDTO> result = _mapper.Map<PageList<UserDTO>>(users);
 
-            return result;
+            return Pagination.Map(users, result);
         }
 
 

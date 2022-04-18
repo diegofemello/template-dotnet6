@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Infrastructure.Context;
+﻿using Infrastructure.Context;
 
 namespace Infrastructure.Repository.Generic
 {

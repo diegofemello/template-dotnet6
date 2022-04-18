@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Application.Utils;
+using Infrastructure.Helpers;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -69,10 +71,15 @@ namespace Api.Configuration
             if (result.StatusCode == null)
                 return base.ExecuteAsync(context, result);
 
+            
+
             int resultStatus = (int)result.StatusCode;
             Type type = result.Value.GetType();
 
+            Console.WriteLine(type.Name);
+
             if (type == typeof(ResponseEnvelope<>)) { }
+            
             else if (resultStatus >= 400)
             {
                 ResponseEnvelope<object> response = new();
@@ -123,6 +130,22 @@ namespace Api.Configuration
                 response.Message = (string)result.Value;
                 response.Status = resultStatus;
                 result.Value = response;
+            }
+
+            var typpp = typeof(PageList<>);
+
+            Console.WriteLine(typpp.Name);
+
+            if (type.Name == typeof(PageList<>).Name)
+            {
+                dynamic pageList = result.Value;
+
+                int currentPage = pageList.CurrentPage;
+                int pageSize = pageList.PageSize;
+                int totalCount = pageList.TotalCount;
+                int totalPages = pageList.TotalPages;
+
+                context.HttpContext.Response.AddPagination(currentPage, pageSize, totalCount, totalPages);
             }
 
             return base.ExecuteAsync(context, result);

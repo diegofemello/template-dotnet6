@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Application.Utils
 {
-    public class Profile: AutoMapper.Profile
+    public class Profile: AutoMapper.Profile 
     {
         public Profile()
         {
@@ -15,6 +15,9 @@ namespace Application.Utils
             CreateMap<UserDTO, UserUpdateDTO>().ReverseMap();
             CreateMap<User, UserCreateDTO>().ReverseMap();
             CreateMap<User, UserUpdateDTO>().ReverseMap();
+
+            CreateMap<Example, ExampleDTO>().ReverseMap();
+            CreateMap <Example, ExampleRequestDTO>().ReverseMap();
         }
     }
 

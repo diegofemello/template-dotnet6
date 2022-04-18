@@ -8,6 +8,7 @@ using Api.Configuration;
 using Application.DTO;
 using Application.DTO.Request;
 using Application.Services.Generic;
+using Infrastructure.Helpers;
 
 namespace API.Controllers
 {
@@ -52,11 +53,11 @@ namespace API.Controllers
         [ProducesResponseType((200), Type = typeof(List<ExampleDTO>))]
         [ProducesResponseType(204)]
         [ProducesResponseType((401), Type = typeof(ResponseEnvelope<>))]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync([FromQuery]PageParams pageParams)
         {
             try
             {
-                List<ExampleDTO> result = await _genericService.GetAll<ExampleDTO>();
+                List<ExampleDTO> result = await _genericService.GetAll<ExampleDTO>(pageParams);
                 if (result == null) return NoContent();
 
                 return Ok(result);

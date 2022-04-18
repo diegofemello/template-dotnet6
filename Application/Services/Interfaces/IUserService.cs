@@ -1,5 +1,6 @@
 ﻿using Application.DTO;
 using Application.DTO.Request;
+using Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Application.Services.Interfaces
 
         Task<UserDTO> ResetPasswordAsync(ResetPasswordDTO model);
 
-        Task<List<UserDTO>> GetAll();
+        Task<PageList<UserDTO>> GetAll(PageParams pageParams);
 
         Task<UserDTO> GetById(Guid id);
 

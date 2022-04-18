@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Infrastructure.Helpers;
 
 namespace Infrastructure.Repository
 {
@@ -17,12 +18,22 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<List<User>> GetAll()
+        public async Task<PageList<User>> GetAll(PageParams pageParams)
         {
-            IQueryable<User> query = _context .Users.
-                OrderBy(u => u.Uid);
+            if(pageParams == null) pageParams = new();
 
-            return await query.AsNoTracking().ToListAsync();
+            IQueryable<User> query = _context.Users;
+
+            query = query.AsNoTracking().Where(e => 
+                e.UserName.ToLower().Contains(pageParams.Term.ToLower())
+                || e.Email.ToLower().Contains(pageParams.Term.ToLower())
+                || e.FullName.ToLower().Contains(pageParams.Term.ToLower())
+                )
+                    .OrderBy(e => e.Uid).AsNoTracking();
+
+            return await PageList<User>.CreateAsync(query, pageParams.PageNumber, pageParams.PageSize);
+
+            //return await query.AsNoTracking().ToListAsync();
         }
 
         public async Task<User> GetById(Guid id)

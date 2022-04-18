@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Infrastructure.Repository.Generic
 {
-    public abstract class BaseRepository<U> : IGenericRepository where U : DbContext
+    public abstract class BaseRepository<U> : IBaseRepository where U : DbContext
     {
         private readonly U _context;
 
